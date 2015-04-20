@@ -247,11 +247,11 @@ end.parse!
 
 ### Set up configuration
 
-remote_prefix  = git_config('branch.prefix') || 'remotes/origin/'
-production_branch  = git_config('branch.production') || 'master'
-staging_branch     = git_config('branch.staging')    || 'staging'
+remote_prefix      = ENV['GIT_PR_RELEASE_PREFIX']     || git_config('branch.prefix')     || 'remotes/origin/'
+production_branch  = ENV['GIT_PR_RELEASE_PRODUCTION'] || git_config('branch.production') || 'master'
+staging_branch     = ENV['GIT_PR_RELEASE_STAGING']    || git_config('branch.staging')    || 'staging'
 production_ref = remote_prefix + production_branch
-staging_ref = remote_prefix + staging_branch
+staging_ref    = remote_prefix + staging_branch
 
 say "Repository:        #{repository}", :debug
 say "Production branch: #{production_ref}", :debug
