@@ -246,12 +246,15 @@ end.parse!
 
 ### Set up configuration
 
+remote_prefix  = git_config('branch.prefix') || 'remotes/origin/'
 production_branch  = git_config('branch.production') || 'master'
 staging_branch     = git_config('branch.staging')    || 'staging'
+production_ref = remote_prefix + production_branch
+staging_ref = remote_prefix + staging_branch
 
 say "Repository:        #{repository}", :debug
-say "Production branch: #{production_branch}", :debug
-say "Staging branch:    #{staging_branch}", :debug
+say "Production branch: #{production_ref}", :debug
+say "Staging branch:    #{staging_ref}", :debug
 
 client = Octokit::Client.new :access_token => obtain_token!
 
@@ -260,7 +263,7 @@ git :remote, 'update', 'origin'
 ### Fetch merged PRs
 
 merged_feature_head_sha1s = git(
-  :log, '--merges', '--pretty=format:%P', "origin/#{production_branch}..origin/#{staging_branch}"
+  :log, '--merges', '--pretty=format:%P', "#{production_ref}..#{staging_ref}"
 ).map do |line|
   main_sha1, feature_sha1 = line.chomp.split /\s+/
   feature_sha1
@@ -273,8 +276,8 @@ merged_pull_request_numbers = git('ls-remote', 'origin', 'refs/pull/*/head').map
     if %r<^refs/pull/(\d+)/head$>.match ref
       pr_number = $1.to_i
 
-      if git('merge-base', sha1, "origin/#{production_branch}").first.chomp == sha1
-        say "##{pr_number} (#{sha1}) is already merged into #{production_branch}", :debug
+      if git('merge-base', sha1, "#{production_ref}").first.chomp == sha1
+        say "##{pr_number} (#{sha1}) is already merged into #{production_ref}", :debug
       else
         pr_number
       end
