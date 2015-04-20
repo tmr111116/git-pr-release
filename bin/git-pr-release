@@ -135,6 +135,7 @@ def dump_result_as_json(release_pr, merged_prs)
 end
 
 def merge_pr_body(old_body, new_body)
+  old_body ||= ''
   # Try to take over checklist statuses
   pr_body_lines = []
 
